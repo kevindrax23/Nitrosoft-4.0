@@ -9,7 +9,8 @@ import Examen from '../pages/Examen.vue'
 import Estadisticas from '../pages/Estadisticas.vue'
 import Configuracion from '../pages/Configuracion.vue'
 import ChatInterno from '../pages/ChatInterno.vue'
-
+import CrearPreguntas from '../utils/seed.vue'
+import Matematicas2 from '../utils/matematicas2.vue'
 // Autenticación
 function isAuthenticated() { return !!localStorage.getItem('token') }
 
@@ -28,7 +29,9 @@ const routes = [
       { path: 'chatinterno', component: ChatInterno, meta: { requiresAuth: true } },
     ]
   },
-  { path: '/examen/:materiaId', component: Examen, meta: { requiresAuth: true } }
+  { path: '/examen/:materiaId', component: Examen, meta: { requiresAuth: true } },
+  { path: '/crear-preguntas', component: CrearPreguntas },
+  { path: '/matematicas2', component: Matematicas2 }
 ]
 
 const router = createRouter({

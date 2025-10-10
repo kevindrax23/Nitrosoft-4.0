@@ -1,32 +1,35 @@
 <template>
-  <div class="max-w-2xl mx-auto mt-10 bg-[#181C25] p-8 rounded-xl shadow-lg text-white font-mono">
-    <h2 class="text-2xl font-bold mb-4">Examen - {{ nombreMateria }}</h2>
-    <div class="mb-6">
-      Tiempo restante: <span class="font-bold text-[#007fff]">{{ minutos }}:{{ segundosFormateados }}</span>
-    </div>
-    <form @submit.prevent="terminarExamen">
-      <div v-for="(preg, idx) in preguntas" :key="preg.id" class="mb-4">
-        <div class="font-semibold mb-1">{{ idx + 1 }}. {{ preg.pregunta }}</div>
-        <div class="flex flex-col gap-1">
-          <label v-for="resp in preg.opciones" :key="resp">
-            <input
-              type="radio"
-              :name="'pregunta_' + idx"
-              :value="resp"
-              v-model="respuestas[idx]"
-              required
-              class="mr-2"
-            />{{ resp }}
-          </label>
-        </div>
+  <div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#181C25] via-blue-900 to-[#007fff] p-6 font-mono">
+    <div class="w-full max-w-2xl bg-[#181C25] p-8 rounded-xl shadow-lg text-white">
+      <h2 class="text-2xl font-bold mb-4">Examen - {{ nombreMateria }}</h2>
+      <div class="mb-6">
+        Tiempo restante: <span class="font-bold text-[#007fff]">{{ minutos }}:{{ segundosFormateados }}</span>
       </div>
-      <button
-        type="submit"
-        class="mt-5 py-3 px-5 bg-blue-600 rounded font-bold w-full transition hover:bg-blue-800"
-      >Terminar examen</button>
-    </form>
-    <div v-if="mostrarModal" class="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-      <div class="bg-white text-black p-10 rounded-lg shadow-xl flex flex-col items-center">
+      <form @submit.prevent="terminarExamen">
+        <div v-for="(preg, idx) in preguntas" :key="preg.id" class="mb-4">
+          <div class="font-semibold mb-1">{{ idx + 1 }}. {{ preg.pregunta }}</div>
+          <div class="flex flex-col gap-1">
+            <label v-for="resp in preg.opciones" :key="resp">
+              <input
+                type="radio"
+                :name="'pregunta_' + idx"
+                :value="resp"
+                v-model="respuestas[idx]"
+                required
+                class="mr-2"
+              />{{ resp }}
+            </label>
+          </div>
+        </div>
+        <button
+          type="submit"
+          class="mt-5 py-3 px-5 bg-blue-600 rounded font-bold w-full transition hover:bg-blue-800"
+        >Terminar examen</button>
+      </form>
+    </div>
+    <!-- Modal de puntaje -->
+    <div v-if="mostrarModal" class="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50">
+      <div class="bg-gradient-to-br from-[#181C25] via-blue-900 to-[#007fff] text-white p-10 rounded-lg shadow-xl flex flex-col items-center">
         <h3 class="text-xl font-bold mb-4">¡Examen finalizado!</h3>
         <p class="mb-5">Puntaje total: {{ puntaje }}/{{ preguntas.length }}</p>
         <button
@@ -37,6 +40,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
@@ -95,6 +99,6 @@ function terminarExamen() {
 
 function cerrarModal() {
   mostrarModal.value = false
-  router.push('/evaluaciones')
+  router.push('/dashboard/evaluaciones')
 }
 </script>

@@ -1,20 +1,31 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-[#181C25] via-blue-900 to-[#007fff] font-mono flex">
     <!-- Sidebar -->
-    <aside :class="sidebarOpen ? 'w-64' : 'w-14'"
-           class="bg-[#202634cc] border-r border-[#333] flex flex-col justify-between py-6 px-3 transition-all duration-300 rounded-r-2xl shadow-xl">
-      <button
+    <aside
+      :class="sidebarOpen ? 'w-64' : 'w-14'"
+      class="relative bg-[#202634cc] border-r border-[#333] flex flex-col justify-between py-6 px-3 transition-all duration-300 rounded-r-2xl shadow-xl"
+    >
+      <!-- Toggle (linea tipo grip) -->
+      <div
         @click="toggleSidebar"
-        class="absolute top-1/2 right-0 -translate-y-1/2 bg-transparent border-none text-gray-100 text-2xl cursor-pointer z-10"
+        class="absolute top-0 left-0 h-full flex flex-col justify-center items-center cursor-pointer z-20"
+        style="width: 12px;"
         aria-label="Toggle sidebar"
       >
-        <span v-if="sidebarOpen">&#8678;</span>
-        <span v-else>&#8680;</span>
-      </button>
+        <div
+          :class="sidebarOpen 
+            ? 'bg-gray-400 hover:bg-[#007fff]' 
+            : 'bg-blue-600 hover:bg-blue-400'"
+          class="transition-all duration-200 rounded-full"
+          style="width: 4px; height: 50px;"
+        ></div>
+      </div>
 
       <div>
         <div class="flex flex-col items-center mb-8">
-          <div class="w-14 h-14 bg-[#007fff] rounded-full flex justify-center items-center text-xl font-bold text-white mb-2">U</div>
+          <div class="w-14 h-14 bg-[#007fff] rounded-full flex justify-center items-center text-xl font-bold text-white mb-2">
+            U
+          </div>
           <div class="text-lg font-semibold mb-2 transition-opacity duration-300" :class="sidebarOpen ? 'opacity-100' : 'opacity-0'">
             Usuario
           </div>
@@ -94,5 +105,4 @@ function handleLogout() {
   localStorage.removeItem('token')
   router.push("/")
 }
-
 </script>
