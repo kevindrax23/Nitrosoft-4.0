@@ -70,11 +70,11 @@ const connection = ref("conectado");
 const sidebarOpen = ref(true);
 
 const menuItems = [
-  { icon: "bi bi-journal-text", label: "Asignaturas", path: "/asignaturas" },
-  { icon: "bi bi-pencil-square", label: "Evaluaciones", path: "/evaluaciones" },
-  { icon: "bi bi-bar-chart-line", label: "Estadísticas", path: "/estadisticas" },
-  { icon: "bi bi-gear", label: "Configuración", path: "/configuracion" },
-  { icon: "bi bi-chat-dots", label: "Chat Interno", path: "/chatinterno" },
+  { icon: "bi bi-journal-text", label: "Asignaturas", path: "/dashboard/asignaturas" },
+  { icon: "bi bi-pencil-square", label: "Evaluaciones", path: "/dashboard/evaluaciones" },
+  { icon: "bi bi-bar-chart-line", label: "Estadísticas", path: "/dashboard/estadisticas" },
+  { icon: "bi bi-gear", label: "Configuración", path: "/dashboard/configuracion" },
+  { icon: "bi bi-chat-dots", label: "Chat Interno", path: "/dashboard/chatinterno" },
 ];
 
 function getConnectionColor() {
