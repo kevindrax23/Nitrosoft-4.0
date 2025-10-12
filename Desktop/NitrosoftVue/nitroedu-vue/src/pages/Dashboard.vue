@@ -7,7 +7,7 @@
       <!-- Botón toggle -->
       <button
         @click="toggleSidebar"
-        class="absolute right-[-22px] top-1/2 transform -translate-y-1/2 w-11 h-11 rounded-full bg-green-500 hover:bg-green-700 text-white
+        class="absolute right-[-22px] top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full bg-green-500 hover:bg-green-700 text-white
                flex items-center justify-center shadow-lg border-4 border-green-400 z-40 transition"
         aria-label="Alternar menú"
       >
@@ -45,8 +45,10 @@
                 class="hidden"
               />
             </div>
-            <div class="text-lg font-semibold mb-2 transition-opacity duration-300 text-green-400 mt-3" :class="sidebarOpen ? 'opacity-100' : 'opacity-0'">
-              Usuario
+            <!-- Nombre dinámico -->
+            <div class="text-lg font-semibold mb-2 transition-opacity duration-300 text-green-400 mt-3"
+                 :class="sidebarOpen ? 'opacity-100' : 'opacity-0'">
+              Hola {{ displayName ? displayName : "Usuario" }}
             </div>
             <div class="flex items-center gap-2">
               <span :style="{ backgroundColor: getConnectionColor() }" class="inline-block w-3 h-3 rounded-full border border-[#121212]" />
@@ -61,7 +63,6 @@
               </select>
             </div>
           </div>
-
           <ul class="flex flex-col list-none p-0 m-0 space-y-2">
             <li v-for="(item, i) in menuItems" :key="item.path">
               <router-link
@@ -87,7 +88,6 @@
         </button>
       </div>
     </aside>
-
     <main class="flex-1 p-6 overflow-auto text-gray-100 font-mono min-h-screen ml-16 md:ml-64 flex items-center justify-center">
       <router-view />
     </main>
@@ -98,14 +98,17 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { db } from "../firebase";
-import { doc, updateDoc, getDoc,setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+// Si usas auth de Firebase Web modular:
+import { getAuth } from "firebase/auth";
 
 const router = useRouter();
 const connection = ref("conectado");
 const sidebarOpen = ref(true);
 const avatarUrl = ref(null);
 const fileInput = ref(null);
-const usuarioId = "usuario123"; // Cambia por el UID real o dinámico
+const displayName = ref(null);
+const usuarioId = ref(null);  // ahora será dinámica, NO string
 
 const menuItems = [
   { icon: "bi bi-journal-text", label: "Asignaturas", path: "/dashboard/asignaturas" },
@@ -117,14 +120,10 @@ const menuItems = [
 
 function getConnectionColor() {
   switch (connection.value) {
-    case "conectado":
-      return "#31c56e";
-    case "ausente":
-      return "#f2cb57";
-    case "desconectado":
-      return "#e34234";
-    default:
-      return "#ccc";
+    case "conectado": return "#31c56e";
+    case "ausente": return "#f2cb57";
+    case "desconectado": return "#e34234";
+    default: return "#ccc";
   }
 }
 
@@ -144,7 +143,6 @@ async function onFileChange(event) {
   reader.readAsDataURL(file);
   reader.onload = async () => {
     const base64Image = reader.result.split(",")[1];
-
     const apiKey = "3edcf912c57b1c0be549e47595bb034d";
     const formData = new FormData();
     formData.append("image", base64Image);
@@ -157,8 +155,8 @@ async function onFileChange(event) {
     if (data.success) {
       const url = data.data.url;
       avatarUrl.value = url;
-      const userDoc = doc(db, "usuarios", usuarioId);
-      // AJUSTE: setDoc con merge:true, siempre crea/actualiza
+      // Guardar imagen y nombre en Firestore (merge para no pisar nada)
+      const userDoc = doc(db, "usuarios", usuarioId.value);
       await setDoc(userDoc, { avatarUrl: url }, { merge: true });
     } else {
       alert("Error subiendo imagen a ImgBB");
@@ -166,12 +164,44 @@ async function onFileChange(event) {
   };
 }
 
+// Carga datos usuario y avatar en mount
 onMounted(async () => {
-  const userDoc = doc(db, "usuarios", usuarioId);
+  // Autenticación
+  const auth = getAuth();
+  const user = auth.currentUser;
+  if (!user) {
+    // Redirige a login si hace falta:
+    router.push("/login");
+    return;
+  }
+  usuarioId.value = user.uid;
+  let nombreCalculado = null;
+  if (user.email) {
+    nombreCalculado = user.email.split("@")[0];
+  }
+  // Lee Firestore por si ya hay nombre guardado:
+  const userDoc = doc(db, "usuarios", usuarioId.value);
   const docSnap = await getDoc(userDoc);
-  if (docSnap.exists() && docSnap.data().avatarUrl) {
-    avatarUrl.value = docSnap.data().avatarUrl;
+
+  if (docSnap.exists()) {
+    avatarUrl.value = docSnap.data().avatarUrl || null;
+    // Si ya hay nombre guardado, úsalo; si no, pon el deducido
+    displayName.value = docSnap.data().nombre || nombreCalculado;
+    // Si aún no hay campo 'nombre', guárdalo junto al correo
+    if (!docSnap.data().nombre) {
+      await setDoc(userDoc, {
+        nombre: nombreCalculado,
+        email: user.email
+      }, { merge: true });
+    }
   } else {
+    // Si no existe, crea documento con nombre y email
+    await setDoc(userDoc, {
+      email: user.email,
+      nombre: nombreCalculado,
+      avatarUrl: null
+    });
+    displayName.value = nombreCalculado;
     avatarUrl.value = null;
   }
 });
