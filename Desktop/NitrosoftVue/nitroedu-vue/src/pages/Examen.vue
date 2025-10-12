@@ -1,46 +1,53 @@
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#181C25] via-blue-900 to-[#007fff] p-6 font-mono">
-    <div class="w-full max-w-2xl bg-[#181C25] p-8 rounded-xl shadow-lg text-white">
-      <h2 class="text-2xl font-bold mb-4">Examen - {{ nombreMateria }}</h2>
-      <div class="mb-6">
-        Tiempo restante: <span class="font-bold text-[#007fff]">{{ minutos }}:{{ segundosFormateados }}</span>
+  <div class="min-h-screen px-4 py-10 bg-gradient-to-br from-black via-[#141914] to-green-950 text-green-100 font-mono flex flex-col items-center">
+    <div class="w-full max-w-2xl mx-auto">
+      <h2 class="text-3xl font-extrabold mb-6 text-green-400 text-center drop-shadow">Examen - {{ nombreMateria }}</h2>
+      <div class="mb-7 text-xl text-center font-semibold">
+        Tiempo restante: <span class="font-bold text-green-400 bg-[#14191466] px-2 py-1 rounded">{{ minutos }}:{{ segundosFormateados }}</span>
       </div>
-      <form @submit.prevent="terminarExamen">
-        <div v-for="(preg, idx) in preguntas" :key="preg.id" class="mb-4">
-          <div class="font-semibold mb-1">{{ idx + 1 }}. {{ preg.pregunta }}</div>
-          <div class="flex flex-col gap-1">
-            <label v-for="resp in preg.opciones" :key="resp">
+      <form @submit.prevent="terminarExamen" class="bg-black/70 border border-green-700 rounded-2xl shadow-2xl p-7 w-full flex flex-col gap-6">
+        <div v-for="(preg, idx) in preguntas" :key="preg.id" class="mb-3">
+          <div class="font-bold mb-2 text-green-300 text-lg">{{ idx + 1 }}. {{ preg.pregunta }}</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <label
+              v-for="resp in preg.opciones"
+              :key="resp"
+              class="flex items-center bg-[#171e17cc] border border-green-800/60 rounded-lg px-3 py-2 hover:bg-green-700/40 transition"
+            >
               <input
                 type="radio"
                 :name="'pregunta_' + idx"
                 :value="resp"
                 v-model="respuestas[idx]"
                 required
-                class="mr-2"
-              />{{ resp }}
+                class="accent-green-500 mr-3 h-4 w-4"
+              />
+              <span class="text-green-200">{{ resp }}</span>
             </label>
           </div>
         </div>
         <button
           type="submit"
-          class="mt-5 py-3 px-5 bg-blue-600 rounded font-bold w-full transition hover:bg-blue-800"
-        >Terminar examen</button>
+          class="mt-3 py-3 px-7 rounded-lg bg-gradient-to-r from-green-600 to-green-400 text-xl font-bold text-white shadow hover:from-green-700 hover:to-green-500 transition focus:outline-none focus:ring-2 focus:ring-green-500"
+        >
+          Terminar examen
+        </button>
       </form>
     </div>
-    <!-- Modal de puntaje -->
-    <div v-if="mostrarModal" class="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50">
-      <div class="bg-gradient-to-br from-[#181C25] via-blue-900 to-[#007fff] text-white p-10 rounded-lg shadow-xl flex flex-col items-center">
-        <h3 class="text-xl font-bold mb-4">¡Examen finalizado!</h3>
-        <p class="mb-5">Puntaje total: {{ puntaje }}/{{ preguntas.length }}</p>
+    <div v-if="mostrarModal" class="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50 px-4 py-8">
+      <div class="bg-gradient-to-br from-black via-green-900 to-green-400 text-green-50 p-10 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm w-full">
+        <h3 class="text-2xl font-bold mb-5">¡Examen finalizado!</h3>
+        <p class="mb-7 text-lg">Puntaje total: <span class="font-extrabold text-green-300">{{ puntaje }}/{{ preguntas.length }}</span></p>
         <button
-          class="py-2 px-4 rounded bg-blue-700 text-white"
+          class="py-2 px-6 rounded-lg bg-gradient-to-r from-green-600 to-green-400 text-lg font-bold text-white shadow hover:from-green-700 hover:to-green-500 transition focus:outline-none focus:ring-2 focus:ring-green-500"
           @click="cerrarModal"
-        >Volver a Evaluaciones</button>
+        >
+          Volver a Evaluaciones
+        </button>
       </div>
     </div>
   </div>
 </template>
-
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
@@ -59,9 +66,8 @@ const minutos = ref(30)
 const segundos = ref(0)
 let timer = null
 
-// Cargar preguntas desde Firestore
 onMounted(async () => {
-  nombreMateria.value = route.params.materiaId // Cambia esto por el nombre real si quieres
+  nombreMateria.value = route.params.materiaId
   const q = query(collection(db, 'preguntas'), where('materia', '==', nombreMateria.value))
   const snaps = await getDocs(q)
   preguntas.value = snaps.docs.map(doc => ({ id: doc.id, ...doc.data() })).slice(0, 10)

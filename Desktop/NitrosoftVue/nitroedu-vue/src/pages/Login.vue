@@ -1,34 +1,40 @@
 <template>
-  <div class="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-[#181C25] via-blue-900 to-[#007fff] font-mono">
-    <form @submit.prevent="handleLogin"
-          class="bg-[#121212cc] backdrop-blur-md rounded-xl shadow-2xl max-w-[400px] w-full flex flex-col gap-6 p-8 border border-[#333]">
-      <h2 class="text-2xl font-bold text-center mb-2 tracking-wider">Iniciar Sesión</h2>
+  <div class="min-h-screen flex flex-col justify-center items-center
+    bg-gradient-to-br from-black via-[#1a1a1a] to-green-700 font-mono px-4 py-6">
+    <form
+      @submit.prevent="handleLogin"
+      class="bg-[#141914cc] backdrop-blur-md rounded-2xl shadow-2xl max-w-[400px] w-full flex flex-col gap-6 p-8 border border-green-700"
+    >
+      <h2 class="text-2xl font-bold text-center mb-2 tracking-wider text-green-400 drop-shadow">Iniciar Sesión</h2>
+      
       <input
         v-model="email"
         type="email"
         placeholder="Correo electrónico"
-        class="w-full py-3 px-4 rounded-md border border-slate-600 bg-[#1e1e1e] text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#007fff] transition-all"
+        class="w-full py-3 px-4 rounded-md border border-green-800 bg-[#171717] text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-600 transition-all"
         required
       />
       <input
         v-model="password"
         type="password"
         placeholder="Contraseña"
-        class="w-full py-3 px-4 rounded-md border border-slate-600 bg-[#1e1e1e] text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#007fff] transition-all"
+        class="w-full py-3 px-4 rounded-md border border-green-800 bg-[#171717] text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-600 transition-all"
         required
       />
-      <label class="flex items-center space-x-2 text-gray-400 text-sm select-none">
-        <input type="checkbox" v-model="remember" class="accent-[#007fff] w-4 h-4" />
+
+      <label class="flex items-center space-x-2 text-gray-300 text-sm select-none">
+        <input type="checkbox" v-model="remember" class="accent-green-500 w-4 h-4" />
         <span>Recordar credenciales</span>
       </label>
+
       <button
         type="submit"
-        class="w-full py-3 rounded-md bg-gradient-to-r from-[#007fff] to-[#005fcc] text-lg font-bold text-white transition-all hover:from-[#005fcc] hover:to-[#007fff] shadow-md"
+        class="w-full py-3 rounded-md bg-gradient-to-r from-green-600 to-green-400 text-lg font-bold text-white transition-all hover:from-green-700 hover:to-green-500 shadow-md"
       >
         Iniciar Sesión
       </button>
       <p v-if="error" class="text-center text-red-400 font-semibold">{{ error }}</p>
-      <p class="text-center text-[#007fff] cursor-pointer text-sm mt-2">¿Olvidaste la contraseña?</p>
+      <p class="text-center text-green-400 cursor-pointer text-sm mt-2 hover:underline">¿Olvidaste la contraseña?</p>
     </form>
   </div>
 </template>
@@ -48,11 +54,8 @@ const router = useRouter();
 const handleLogin = async () => {
   error.value = '';
   try {
-    // Autentica con Firebase
     const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
-    // Guarda UID como "token" en localStorage para el guard del router
     localStorage.setItem('token', userCredential.user.uid);
-    // Redirige al dashboard
     router.push('/dashboard');
   } catch (err) {
     error.value = "Usuario o contraseña incorrectos";

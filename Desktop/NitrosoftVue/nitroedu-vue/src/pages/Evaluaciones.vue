@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-screen w-full bg-gradient-to-br from-[#181C25] via-blue-900 to-[#007fff] px-3 py-10">
-    <div class="max-w-xl mx-auto mb-8">
-      <label for="materia-select" class="block mb-2 text-white font-bold">Selecciona la materia:</label>
+  <div class="min-h-screen w-full bg-gradient-to-br from-black via-[#171d17] to-green-950 px-4 py-10 flex flex-col items-center">
+    <div class="max-w-lg w-full mx-auto mb-8 bg-black/70 border border-green-700 rounded-2xl shadow-lg px-7 py-6 flex flex-col gap-4">
+      <label for="materia-select" class="block mb-1 text-green-400 font-bold text-lg">Selecciona la materia:</label>
       <select
         v-model="materiaSeleccionada"
         id="materia-select"
-        class="w-full py-2 px-4 rounded bg-[#202634] border border-[#333] text-white font-bold"
+        class="w-full py-3 px-4 rounded-lg bg-[#161e16] border border-green-600 text-green-300 font-semibold text-lg transition focus:ring-2 focus:ring-green-500 focus:outline-none"
       >
         <option value="matematicas">Matemáticas</option>
         <option value="geometria">Geometría</option>
@@ -13,15 +13,17 @@
         <option value="trigonometria">Trigonometría</option>
       </select>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-center items-center">
       <div
         v-for="card in examenesFiltrados"
         :key="card.id"
-        class="bg-[#20283a] rounded-xl shadow-md flex flex-col justify-between p-6 min-h-[200px] transition-transform hover:scale-105"
+        class="bg-gradient-to-br from-[#171d17f3] to-[#244d24e6] border border-green-700 rounded-2xl shadow-xl flex flex-col justify-between p-8 min-h-[220px]
+              hover:scale-105 hover:border-green-400 transition-transform duration-200 mx-auto w-full max-w-sm"
       >
-        <h2 class="text-xl font-semibold mb-3 text-white">{{ card.nombre }}</h2>
+        <h2 class="text-2xl font-extrabold mb-4 text-green-300 text-center break-words">{{ card.nombre }}</h2>
         <button
-          class="mt-auto py-2 px-5 rounded bg-gradient-to-r from-[#007fff] to-[#005fcc] text-white font-bold"
+          class="mt-auto py-3 px-6 rounded-lg bg-gradient-to-r from-green-600 to-green-400 text-white font-bold shadow
+                hover:from-green-700 hover:to-green-500 transition focus:outline-none focus:ring-2 focus:ring-green-500"
           @click="accederExamen(card.id)"
         >
           Acceder Examen
