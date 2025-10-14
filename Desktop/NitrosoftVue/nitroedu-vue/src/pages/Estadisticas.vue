@@ -1,124 +1,245 @@
 <template>
-  <div class="min-h-screen px-4 py-8 bg-gradient-to-br from-black via-[#161d14] to-green-950 text-green-100 font-sans flex flex-col items-center">
-    <h1 class="text-3xl font-extrabold mb-10 text-green-400 text-center drop-shadow">Estadísticas de Perfil</h1>
-    <!-- Tiempo de conexión -->
-    <section class="mb-8 bg-black/70 border border-green-700 rounded-2xl p-6 shadow-xl max-w-xl w-full mx-auto flex flex-col gap-3">
-      <h2 class="text-2xl font-bold mb-2 text-green-300">Tiempo de conexión</h2>
-      <p class="text-lg">Has estado conectado durante: <strong class="text-green-400">{{ tiempoConexionFormateado }}</strong></p>
-    </section>
-    <!-- Estadísticas generales -->
-    <section class="mb-8 bg-black/70 border border-green-700 rounded-2xl p-6 shadow-xl max-w-xl w-full mx-auto flex flex-col gap-3">
-      <h2 class="text-2xl font-bold mb-2 text-green-300">Estadísticas generales</h2>
-      <p>Total de exámenes realizados: <strong class="text-green-400">{{ totalExamenes }}</strong></p>
-      <p>Promedio general: <strong class="text-green-400">{{ promedioGeneral.toFixed(2) }} / 5</strong></p>
-      <p>
-        Estado: 
-        <strong :class="promedioGeneral >= 3 ? 'text-green-400' : 'text-red-400'">
-          {{ promedioGeneral >=3 ? 'Aprobado' : 'Reprobado' }}
-        </strong>
-      </p>
-    </section>
-    <!-- Resultados por examen -->
-    <section class="w-full max-w-2xl mx-auto">
-      <h2 class="text-2xl font-bold mb-3 text-green-300 text-center">Resultados por examen</h2>
-      <div v-for="examen in examenes" :key="examen.id" class="bg-gradient-to-br from-[#161e17ed] to-[#1b381bd9] border border-green-700 rounded-2xl p-6 mb-7 shadow-xl w-full">
-        <h3 class="text-xl font-extrabold mb-2 text-green-200">{{ examen.nombre }}</h3>
-        <p>Puntaje: <strong class="text-green-400">{{ examen.puntaje }} / {{ examen.total }}</strong></p>
-        <!-- Gráfica del examen -->
-        <canvas :id="'chart-'+examen.id" class="w-full max-w-[380px] mt-5 mx-auto bg-black border border-green-900 rounded-lg" height="80"></canvas>
+  <div class="min-h-screen bg-gradient-to-br from-black via-[#161d14] to-green-950 px-4 py-10 flex flex-col items-center">
+    <div class="max-w-3xl w-full mx-auto mb-8 bg-black/70 border border-green-700 rounded-2xl shadow-lg px-7 py-6">
+      <h2 class="text-green-400 text-2xl font-extrabold mb-4 animate__animated animate__fadeInDown">Estadísticas personales</h2>
+      <div class="flex flex-col sm:flex-row gap-6 text-green-200 justify-between">
+        <div><span class="font-bold">Última conexión:</span> {{ ultimaConexionFormat }}</div>
+        <div><span class="font-bold">Tiempo total conectado:</span> {{ tiempoTotalConexion }} min</div>
       </div>
-    </section>
+      <div class="mt-3 flex flex-wrap gap-5 items-end animate__animated animate__fadeIn">
+        <div>
+          <span class="font-bold text-green-400">Promedio global:</span>
+          <span :class="averageClass(promedioGlobal)">
+            {{ promedioGlobal }} / 100
+          </span>
+          <span v-if="promedioGlobal >= 80" class="ml-2 text-2xl text-green-400 animate__pulse animate__infinite">⭐</span>
+          <span v-else-if="promedioGlobal >= 60" class="ml-2 text-yellow-200">¡Vas bien!</span>
+          <span v-else-if="promedioGlobal > 0" class="ml-2 text-red-400">¡Vamos, tú puedes subir más!</span>
+        </div>
+        <button
+          class="px-3 py-1 text-green-400 border border-green-500 bg-green-950/70 rounded hover:bg-green-700 transition ml-6"
+          @click="exportarExcel">Exportar a Excel</button>
+      </div>
+    </div>
+
+    <!-- Últimos resultados individualizados -->
+    <div class="max-w-4xl w-full mx-auto bg-black/70 border border-green-700 rounded-2xl shadow-lg px-7 py-6 mb-8">
+      <h3 class="text-green-400 text-xl font-bold mb-6">Resultados del último examen por materia</h3>
+      <div v-if="resultados.length" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div v-for="r in resultados" :key="r.id"
+          class="bg-gradient-to-br from-[#1b3822e6] to-[#183c1bc4] border border-green-700 rounded-xl shadow p-5 relative transition hover:ring-2 hover:ring-green-500 animate__animated animate__fadeInUp">
+          <div class="absolute top-2 right-3 text-xs px-2 py-1 rounded-lg"
+              :class="r.puntaje >= 80 ? 'bg-green-900 text-green-300' : r.puntaje >= 60 ? 'bg-yellow-900 text-yellow-300' : 'bg-red-900 text-red-300'">
+            {{ r.puntaje >= 80 ? '¡Record!' : r.puntaje >= 60 ? 'Constante' : '¡Hazlo de nuevo!' }}
+          </div>
+          <div class="text-green-300 mb-2 font-bold text-lg">{{ r.materiaNombre }}</div>
+          <div class="text-green-200">Examen: <b>{{ r.examenNombre }}</b></div>
+          <div class="text-xl font-bold mb-1" :class="averageClass(r.puntaje)">{{ r.puntaje }}</div>
+          <div class="text-green-200 text-sm mt-1">Fecha: {{ r.fechaString }}</div>
+          <div class="text-green-400 text-xs mt-2">Prom. en esta materia: {{ promediosEnTarjetas[r.materiaNombre] || 0 }}</div>
+        </div>
+      </div>
+      <div v-else class="text-green-300 text-center py-6">No hay resultados aún.</div>
+    </div>
+
+    <!-- Barra horizontal animada promedios por materia -->
+    <div class="max-w-2xl w-full mx-auto mb-8">
+      <h3 class="text-green-400 text-lg font-bold mb-4">Tus promedios por materia</h3>
+      <div
+        v-for="p in resumenMaterias"
+        :key="p.materia"
+        class="mb-4 flex items-center gap-4"
+      >
+        <div class="w-32 font-bold text-green-300">{{ p.materia }}</div>
+        <div class="flex-1 h-7 bg-green-900 rounded overflow-hidden">
+          <div
+            class="h-7 rounded bg-gradient-to-r from-green-400 to-green-700 text-green-950 pl-2 flex items-center transition-all duration-700"
+            :style="{ width: (p.promedio >= 100 ? 100 : p.promedio) + '%' }"
+          >
+            {{ p.promedio }}
+          </div>
+        </div>
+        <span v-if="p.promedio >= 80" class="ml-2 text-green-400">⭐</span>
+      </div>
+    </div>
+
+    <!-- Ranking panel simulación -->
+    <div class="max-w-2xl w-full mx-auto mb-8">
+      <h3 class="text-green-400 text-lg font-bold mb-4">¿Cómo vas en el ranking?</h3>
+      <div class="flex gap-5 items-center">
+        <div class="bg-green-900/80 text-green-200 font-bold px-4 py-2 rounded-xl ring-2 ring-green-500">Tu puntaje está por encima del 65% de los usuarios ⭐</div>
+        <button class="bg-green-600 rounded px-3 py-1 text-white hover:bg-green-700 shadow text-sm">Ver ranking global (próximamente)</button>
+      </div>
+    </div>
+
+    <!-- Tabla avanzada de tendencias y máximos/mínimos -->
+    <div class="max-w-3xl w-full mx-auto mb-8">
+      <h3 class="text-green-400 text-lg font-bold mb-4">Resumen y progreso</h3>
+      <table class="w-full table-auto bg-black/80 rounded-xl text-green-100 shadow mb-6 text-center">
+        <thead>
+          <tr class="bg-green-900/80 text-green-300">
+            <th class="p-2">Materia</th>
+            <th class="p-2">Promedio</th>
+            <th class="p-2">Máx</th>
+            <th class="p-2">Mín</th>
+            <th class="p-2">Últ. 5</th>
+            <th class="p-2">Tendencia</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="m in resumenMaterias" :key="m.materia">
+            <td class="p-2">{{ m.materia }}</td>
+            <td class="p-2">{{ m.promedio }}</td>
+            <td class="p-2 text-green-400">{{ m.max }}</td>
+            <td class="p-2 text-red-300">{{ m.min }}</td>
+            <td class="p-2">
+              <span v-for="(p,idx) in m.ultimos5" :key="idx"
+                :class="p >= 80 ? 'text-green-400' : p >= 60 ? 'text-yellow-300' : 'text-red-300'"
+                class="mx-1">{{ p }}</span>
+            </td>
+            <td class="p-2">
+              <span v-if="m.tendencia > 0" class="text-green-400 font-bold animate__flash animate__infinite">▲{{ m.tendencia }}</span>
+              <span v-else-if="m.tendencia < 0" class="text-red-400 font-bold animate__shakeX animate__infinite">▼{{ Math.abs(m.tendencia) }}</span>
+              <span v-else class="text-neutral-400">-</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { db } from '../firebase'
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore'
-import Chart from 'chart.js/auto'
+import { ref, computed, onMounted } from 'vue';
+import { db } from '../firebase';
+import { collection, query, where, orderBy, limit, getDocs, doc, getDoc } from 'firebase/firestore';
 
-const usuarioId = 'usuario123'
+// Importa animate.css para animaciones (añade en tu main.js o index.html)
+import 'animate.css';
 
-const tiempoConexionFormateado = ref('0h 0m 0s')
-const examenes = ref([])
-const totalExamenes = ref(0)
-const promedioGeneral = ref(0)
+const usuarioId = "usuario_demo_1";
 
-// Simulación de tiempo de conexión
-function calcularTiempoConexion() {
-  const segundos = 1*3600 + 30*60 + 50
-  const h = Math.floor(segundos / 3600)
-  const m = Math.floor((segundos % 3600) / 60)
-  const s = segundos % 60
-  tiempoConexionFormateado.value = `${h}h ${m}m ${s}s`
-}
+const ultimaConexion = ref('');
+const tiempoTotalConexion = ref(0);
+const resultados = ref([]);
+const promedioGlobal = ref(0);
+const resumenMaterias = ref([]);
+const promediosEnTarjetas = ref({});
 
-async function cargarEstadisticas() {
-  const q = query(collection(db, 'resultados'), where('usuarioId', '==', usuarioId), orderBy('fecha'))
-  const snapshot = await getDocs(q)
-  const tempExamenes = {}
-  snapshot.forEach(doc => {
-    const data = doc.data()
-    if(!tempExamenes[data.examenId]) {
-      tempExamenes[data.examenId] = {
-        id: data.examenId,
-        nombre: data.examenNombre,
-        puntajes: [],
-        total: data.total
-      }
+const materiasNombres = {
+  matematicas: "Matemáticas",
+  geometria: "Geometría",
+  algebra: "Álgebra",
+  trigonometria: "Trigonometría"
+};
+
+const examenesNombres = {
+  mat1: "Matemáticas 1",
+  mat2: "Matemáticas 2 (Avanzado)",
+  geo1: "Geometría 1",
+  geo2: "Geometría 2",
+  alg1: "Álgebra 1",
+  alg2: "Álgebra 2",
+  tri1: "Trigonometría 1",
+  tri2: "Trigonometría 2"
+};
+
+const examenes = [
+  { id: "mat1", nombre: "Matemáticas 1", materia: "matematicas" },
+  { id: "mat2", nombre: "Matemáticas 2 (Avanzado)", materia: "matematicas" },
+  { id: "geo1", nombre: "Geometría 1", materia: "geometria" },
+  { id: "geo2", nombre: "Geometría 2", materia: "geometria" },
+  { id: "alg1", nombre: "Álgebra 1", materia: "algebra" },
+  { id: "alg2", nombre: "Álgebra 2", materia: "algebra" },
+  { id: "tri1", nombre: "Trigonometría 1", materia: "trigonometria" },
+  { id: "tri2", nombre: "Trigonometría 2", materia: "trigonometria" }
+];
+
+onMounted(async () => {
+  // Datos generales (conexión, tiempo)
+  const userRef = doc(db, 'usuarios_stats', usuarioId);
+  const userDoc = await getDoc(userRef);
+  if (userDoc.exists()) {
+    const d = userDoc.data();
+    ultimaConexion.value = d.ultimoLogin?.toDate();
+    tiempoTotalConexion.value = d.tiempoTotalConexion ?? 0;
+  }
+  // Últimos resultados por examen específico
+  const resultadosExamenes = [];
+  let allScores = [];
+  const promsTarjetas = {};
+  const summary = [];
+  const materias = Object.keys(materiasNombres);
+
+  for (const ex of examenes) {
+    const q = query(
+      collection(db, 'resultados_examen'),
+      where('usuarioId', '==', usuarioId),
+      where('materia', '==', ex.materia),
+      where('examenId', '==', ex.id),
+      orderBy('fecha', 'desc'),
+      limit(1)
+    );
+    const docs = await getDocs(q);
+    if (!docs.empty) {
+      const dato = docs.docs[0].data();
+      resultadosExamenes.push({
+        id: ex.id,
+        materiaNombre: materiasNombres[ex.materia],
+        examenNombre: examenesNombres[ex.id] || ex.id,
+        puntaje: dato.puntaje,
+        fechaString: dato.fecha?.toDate().toLocaleDateString() || ""
+      });
     }
-    tempExamenes[data.examenId].puntajes.push(data.puntaje)
-  })
+  }
+  resultados.value = resultadosExamenes;
 
-  examenes.value = Object.values(tempExamenes).map(ex => {
-    const sum = ex.puntajes.reduce((a,b) => a+b, 0)
-    const prom = sum / ex.puntajes.length
-    return {
-      ...ex,
-      puntaje: prom.toFixed(2),
-    }
-  })
-
-  const sumatorios = examenes.value.reduce((a,b) => a + parseFloat(b.puntaje), 0)
-  promedioGeneral.value = examenes.value.length ? (sumatorios / examenes.value.length) : 0
-  totalExamenes.value = examenes.value.length || 0
-  setTimeout(dibujarGraficas, 150)
-}
-
-function dibujarGraficas() {
-  examenes.value.forEach(examen => {
-    const ctx = document.getElementById('chart-' + examen.id)?.getContext('2d')
-    if(!ctx) return
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: examen.puntajes.map((_, i) => i+1),
-        datasets: [{
-          label: 'Puntaje',
-          data: examen.puntajes.map(p => parseFloat(p)),
-          fill: true,
-          borderColor: '#31c56e',
-          backgroundColor: 'rgba(49, 197, 110, 0.15)',
-          tension: 0.3
-        }]
-      },
-      options: {
-        responsive: true,
-        aspectRatio: 3.5,
-        scales: {
-          y: {
-            min: 0,
-            max: 5,
-            ticks: { stepSize: 1 }
-          }
-        }
+  // Resumen por materia (prom, máx, mín, tendencia)
+  for (const materia of materias) {
+    const q = query(
+      collection(db, 'resultados_examen'),
+      where('usuarioId', '==', usuarioId),
+      where('materia', '==', materia),
+      orderBy('fecha', 'desc')
+    );
+    const docs = await getDocs(q);
+    const califs = [];
+    docs.forEach(doc => {
+      const d = doc.data();
+      if (d.puntaje != null) {
+        califs.push(Number(d.puntaje));
+        allScores.push(Number(d.puntaje));
       }
-    })
-  })
+    });
+    if (califs.length) {
+      promsTarjetas[materiasNombres[materia]] = (califs.reduce((a, b) => a + b, 0) / califs.length).toFixed(1);
+    }
+    summary.push({
+      materia: materiasNombres[materia],
+      promedio: califs.length ? (califs.reduce((a, b) => a + b, 0) / califs.length).toFixed(1) : 0,
+      max: califs.length ? Math.max(...califs) : "-",
+      min: califs.length ? Math.min(...califs) : "-",
+      ultimos5: califs.slice(0, 5),
+      tendencia: califs.length > 1 ? califs[0] - califs[1] : 0
+    });
+  }
+  resumenMaterias.value = summary;
+  promediosEnTarjetas.value = promsTarjetas;
+  promedioGlobal.value = allScores.length ? (allScores.reduce((a, b) => a + b, 0) / allScores.length).toFixed(1) : 0;
+});
+
+function exportarExcel() {
+  alert("Función de exportar aún no activada (requiere plugin externo, como SheetJS).");
 }
 
-onMounted(() => {
-  calcularTiempoConexion()
-  cargarEstadisticas()
-})
+function averageClass(avg) {
+  if (avg >= 80) return 'text-green-400 font-bold';
+  if (avg >= 60) return 'text-yellow-300 font-bold';
+  if (avg > 0) return 'text-red-300 font-bold';
+  return '';
+}
+
+const ultimaConexionFormat = computed(() =>
+  ultimaConexion.value ? new Date(ultimaConexion.value).toLocaleString() : "Nunca"
+);
 </script>

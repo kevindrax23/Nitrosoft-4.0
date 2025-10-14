@@ -21,6 +21,17 @@
               hover:scale-105 hover:border-green-400 transition-transform duration-200 mx-auto w-full max-w-sm"
       >
         <h2 class="text-2xl font-extrabold mb-4 text-green-300 text-center break-words">{{ card.nombre }}</h2>
+        <div v-if="resultadosExamenes[card.id]" class="mb-3 text-green-200 text-center">
+          <div class="font-bold">
+            Último puntaje: {{ resultadosExamenes[card.id].puntaje }}
+          </div>
+          <div class="text-green-400 text-sm">
+            Fecha: {{ resultadosExamenes[card.id].fechaString }}
+          </div>
+        </div>
+        <div v-else class="mb-3 text-green-500 text-center italic">
+          Sin intento registrado
+        </div>
         <button
           class="mt-auto py-3 px-6 rounded-lg bg-gradient-to-r from-green-600 to-green-400 text-white font-bold shadow
                 hover:from-green-700 hover:to-green-500 transition focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -34,8 +45,13 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted , watch} from "vue";
 import { useRouter } from "vue-router";
+import { db } from "../firebase";
+import { collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
+
+// Simula ID del usuario, usa el id del usuario autenticado en producción.
+const usuarioId = "usuario_demo_1";
 
 // Opciones de materia para el select
 const materiaSeleccionada = ref("matematicas");
@@ -56,6 +72,35 @@ const examenes = [
 const examenesFiltrados = computed(() =>
   examenes.filter((card) => card.materia === materiaSeleccionada.value)
 );
+
+// Resultados del usuario por examen
+const resultadosExamenes = ref({});
+
+// Consulta Firestore al montar o si cambia la materia seleccionada
+onMounted(cargarResultadosMateria);
+watch(materiaSeleccionada, cargarResultadosMateria);
+
+async function cargarResultadosMateria() {
+  resultadosExamenes.value = {}
+  for (const card of examenesFiltrados.value) {
+    const q = query(
+      collection(db, "resultados_examen"),
+      where("usuarioId", "==", usuarioId),
+      where("materia", "==", card.materia),
+      where("examenId", "==", card.id),
+      orderBy("fecha", "desc"),
+      limit(1)
+    );
+    const docs = await getDocs(q);
+    if (!docs.empty) {
+      const dato = docs.docs[0].data();
+      resultadosExamenes.value[card.id] = {
+        puntaje: dato.puntaje,
+        fechaString: dato.fecha?.toDate().toLocaleDateString() || "",
+      };
+    }
+  }
+}
 
 const router = useRouter();
 const accederExamen = (cardId) => {

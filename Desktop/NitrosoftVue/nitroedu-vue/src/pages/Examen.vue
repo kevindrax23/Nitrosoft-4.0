@@ -53,7 +53,10 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { db } from '../firebase'
-import { collection, getDocs, query, where } from 'firebase/firestore'
+import { collection, getDocs, query, where, addDoc, doc, setDoc, Timestamp, increment } from 'firebase/firestore'
+
+// Simula usuario autenticado. En producción usa el id del usuario logueado.
+const usuarioId = 'usuario_demo_1'
 
 const route = useRoute()
 const router = useRouter()
@@ -65,6 +68,7 @@ const mostrarModal = ref(false)
 const minutos = ref(30)
 const segundos = ref(0)
 let timer = null
+const tiempoTomado = ref(0) // para contar segundos usados
 
 onMounted(async () => {
   nombreMateria.value = route.params.materiaId
@@ -76,6 +80,7 @@ onMounted(async () => {
 
 function iniciarCronometro() {
   timer = setInterval(() => {
+    tiempoTomado.value++
     if (segundos.value === 0) {
       if (minutos.value === 0) {
         terminarExamen()
@@ -89,9 +94,10 @@ function iniciarCronometro() {
     }
   }, 1000)
 }
+
 const segundosFormateados = computed(() => String(segundos.value).padStart(2, '0'))
 
-function terminarExamen() {
+async function terminarExamen() {
   clearInterval(timer)
   let puntos = 0
   for (let i = 0; i < preguntas.value.length; i++) {
@@ -100,6 +106,27 @@ function terminarExamen() {
     }
   }
   puntaje.value = puntos
+
+  // 1. Guarda el resultado en Firestore
+  await addDoc(collection(db, 'resultados_examen'), {
+    usuarioId,
+    materia: nombreMateria.value,
+    examenId: route.params.examenId || '',
+    puntaje: puntos,
+    fecha: Timestamp.now()
+  })
+
+  // 2. Actualiza estadísticas de conexión
+  const minutosSesion = Math.ceil(tiempoTomado.value / 60)
+  await setDoc(
+    doc(db, 'usuarios_stats', usuarioId),
+    {
+      ultimoLogin: Timestamp.now(),
+      tiempoTotalConexion: increment(minutosSesion)
+    },
+    { merge: true }
+  )
+
   mostrarModal.value = true
 }
 
