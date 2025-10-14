@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen px-4 py-8 bg-gradient-to-br from-black via-[#161d14] to-green-950 text-green-100 font-mono flex flex-col items-center">
+  <div class="min-h-screen px-4 py-8 bg-gradient-to-br from-black via-[#161d14] to-green-950 text-green-100 font-sans flex flex-col items-center">
     <h1 class="text-3xl font-extrabold mb-10 text-green-400 text-center drop-shadow">Estadísticas de Perfil</h1>
     <!-- Tiempo de conexión -->
     <section class="mb-8 bg-black/70 border border-green-700 rounded-2xl p-6 shadow-xl max-w-xl w-full mx-auto flex flex-col gap-3">

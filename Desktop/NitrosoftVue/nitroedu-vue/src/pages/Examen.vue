@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen px-4 py-10 bg-gradient-to-br from-black via-[#141914] to-green-950 text-green-100 font-mono flex flex-col items-center">
+  <div class="min-h-screen px-4 py-10 bg-gradient-to-br from-black via-[#141914] to-green-950 text-green-100 font-sans flex flex-col items-center">
     <div class="w-full max-w-2xl mx-auto">
       <h2 class="text-3xl font-extrabold mb-6 text-green-400 text-center drop-shadow">Examen - {{ nombreMateria }}</h2>
       <div class="mb-7 text-xl text-center font-semibold">

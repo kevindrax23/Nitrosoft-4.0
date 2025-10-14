@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen flex flex-col justify-center items-center
-    bg-gradient-to-br from-black via-[#1a1a1a] to-green-700 font-mono px-4 py-6">
+    bg-gradient-to-br from-black via-[#1a1a1a] to-green-700 font-sans px-4 py-6">
     <form
       @submit.prevent="handleLogin"
       class="bg-[#141914cc] backdrop-blur-md rounded-2xl shadow-2xl max-w-[400px] w-full flex flex-col gap-6 p-8 border border-green-700"

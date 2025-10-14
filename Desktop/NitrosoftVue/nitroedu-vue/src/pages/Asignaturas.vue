@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen font-mono px-2 py-6 bg-gradient-to-br from-black via-[#161d14] to-green-950">
+  <div class="min-h-screen font-sans px-2 py-6 bg-gradient-to-br from-black via-[#161d14] to-green-950">
     <div class="w-full max-w-7xl mx-auto">
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-7 md:gap-10">
         <div
@@ -27,7 +27,7 @@
           <button
             class="self-center px-7 py-3 rounded-lg bg-gradient-to-r from-green-600 to-green-400 text-white font-bold shadow
                     hover:from-green-700 hover:to-green-500 transition focus:outline-none focus:ring-2 focus:ring-green-500"
-            @click="accederTema(tema.titulo)"
+            @click="accederTema(tema)"
           >
             Acceder
           </button>
@@ -39,30 +39,11 @@
 
 <script setup>
 import { ref } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const temas = ref([
-  {
-    id: 1,
-    titulo: "Cinemática",
-    descripcion: "Estudio del movimiento de los cuerpos sin atender las causas que lo producen.",
-    ejercicios: ["¿Qué es la velocidad?", "Ejemplo de MRU", "Calcula aceleración."],
-    videoUrl: "https://www.youtube.com/embed/F4U7Ab_lKjY"
-  },
-  {
-    id: 2,
-    titulo: "Dinámica",
-    descripcion: "Analiza las fuerzas y su influencia en el movimiento.",
-    ejercicios: ["Enuncia la Segunda Ley de Newton.", "Fuerza neta sobre un bloque de 2kg."],
-    videoUrl: "https://www.youtube.com/embed/Jk31Nwjb6ms"
-  },
-  {
-    id: 3,
-    titulo: "Termodinámica",
-    descripcion: "Estudia el calor y la temperatura, y sus efectos sobre la materia.",
-    ejercicios: ["¿Qué es la energía interna?", "Ejemplo del primer principio de la termodinámica."],
-    videoUrl: "https://www.youtube.com/embed/U3vYsZudOqo"
-  },
-
   {
     id: 1,
     titulo: "Cinemática",
@@ -86,7 +67,8 @@ const temas = ref([
   }
 ]);
 
-function accederTema(titulo) {
-  alert(`Acceder a tema: ${titulo}`);
+function accederTema(tema) {
+  // Navega a la vista Lecciones pasando el id del tema
+  router.push({ name: "Lecciones", params: { id: tema.id } });
 }
 </script>

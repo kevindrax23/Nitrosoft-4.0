@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-black via-[#141914] to-green-900 font-mono flex">
+  <div class="min-h-screen bg-gradient-to-br from-black via-[#141914] to-green-900 font-sans flex">
     <aside
       :class="sidebarOpen ? 'w-64' : 'w-16'"
       class="fixed top-0 left-0 h-screen z-30 bg-black/80 border-r border-green-600 flex flex-col transition-all duration-300 rounded-r-2xl shadow-xl"
@@ -88,7 +88,7 @@
         </button>
       </div>
     </aside>
-    <main class="flex-1 p-6 overflow-auto text-gray-100 font-mono min-h-screen ml-16 md:ml-64 flex items-center justify-center">
+    <main class="flex-1 p-6 overflow-auto text-gray-100 font-sans min-h-screen ml-16 md:ml-64 flex items-center justify-center">
       <router-view />
     </main>
   </div>

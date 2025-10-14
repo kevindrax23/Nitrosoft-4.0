@@ -1,21 +1,27 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+// Páginas
 import Login from '../pages/Login.vue'
 import Dashboard from '../pages/Dashboard.vue'
 import Asignaturas from '../pages/Asignaturas.vue'
 import Evaluaciones from '../pages/Evaluaciones.vue'
 import Examen from '../pages/Examen.vue'
-// Puedes agregar Estadisticas, Configuración, ChatInterno si tienes sus componentes
 import Estadisticas from '../pages/Estadisticas.vue'
 import Configuracion from '../pages/Configuracion.vue'
 import ChatInterno from '../pages/ChatInterno.vue'
 import CrearPreguntas from '../utils/seed.vue'
 import Matematicas2 from '../utils/matematicas2.vue'
-// Autenticación
-function isAuthenticated() { return !!localStorage.getItem('token') }
+import Lecciones from '../pages/Lecciones.vue' // ajusta la ruta real si es necesario
+import CrearLeccion from '../utils/crearLeccion.vue'
+// Auth helper
+function isAuthenticated() {
+  return !!localStorage.getItem('token')
+}
 
 const routes = [
-  { path: '/', component: Login, meta: { public: true } },
+  { path: '/', redirect: '/login' }, // Redirección raíz a login
+  { path: '/login', component: Login, meta: { public: true } },
+
   {
     path: '/dashboard',
     component: Dashboard,
@@ -31,7 +37,18 @@ const routes = [
   },
   { path: '/examen/:materiaId', component: Examen, meta: { requiresAuth: true } },
   { path: '/crear-preguntas', component: CrearPreguntas },
-  { path: '/matematicas2', component: Matematicas2 }
+  { path: '/matematicas2', component: Matematicas2 },
+  {
+  path: '/lecciones/:id',
+  name: 'Lecciones',
+  component: Lecciones
+},
+
+{
+    path: "/crear-leccion",
+    name: "CrearLeccion",
+    component: CrearLeccion,
+  },
 ]
 
 const router = createRouter({
@@ -39,9 +56,10 @@ const router = createRouter({
   routes,
 })
 
+// Protección de rutas
 router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !isAuthenticated()) {
-    next({ path: '/' })
+    next({ path: '/login' })       // Asegura que /login existe y es pública
   } else if (to.meta.public && isAuthenticated()) {
     next('/dashboard')
   } else {
