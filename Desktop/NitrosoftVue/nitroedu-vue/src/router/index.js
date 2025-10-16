@@ -11,7 +11,7 @@ import Configuracion from '../pages/Configuracion.vue'
 import ChatInterno from '../pages/ChatInterno.vue'
 import CrearPreguntas from '../utils/seed.vue'
 import Matematicas2 from '../utils/matematicas2.vue'
-import Lecciones from '../pages/Lecciones.vue' // ajusta la ruta real si es necesario
+import Lecciones from '../pages/Lecciones.vue' 
 import CrearLeccion from '../utils/crearLeccion.vue'
 // Auth helper
 function isAuthenticated() {

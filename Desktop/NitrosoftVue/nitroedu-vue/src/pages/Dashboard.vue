@@ -1,35 +1,41 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-black via-[#141914] to-green-900 font-sans flex">
+  <div class="min-h-screen bg-gradient-to-br from-black via-[#141914] to-green-900 font-sans flex relative">
+    <!-- Sidebar -->
     <aside
-      :class="sidebarOpen ? 'w-64' : 'w-16'"
+      :class="sidebarOpen ? 'w-72' : 'w-16'"
       class="fixed top-0 left-0 h-screen z-30 bg-black/80 border-r border-green-600 flex flex-col transition-all duration-300 rounded-r-2xl shadow-xl"
     >
-      <!-- Botón toggle -->
+      <!-- Toggle Btn -->
       <button
         @click="toggleSidebar"
         class="absolute right-[-22px] top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full bg-green-500 hover:bg-green-700 text-white
-               flex items-center justify-center shadow-lg border-4 border-green-400 z-40 transition"
+              flex items-center justify-center shadow-lg border-4 border-green-400 z-40 transition"
         aria-label="Alternar menú"
       >
         <span :class="sidebarOpen ? 'bi bi-chevron-left text-2xl' : 'bi bi-chevron-right text-2xl'"></span>
       </button>
 
-      <div class="flex-1 flex flex-col justify-between pt-14 pb-6 h-full">
+      <!-- Avatar + User + Estado -->
+      <div class="flex-1 flex flex-col justify-between pt-16 pb-8 h-full">
         <div>
-          <div class="flex flex-col items-center mb-8 relative">
-            <div class="relative group">
-              <img
-                v-if="avatarUrl"
-                :src="avatarUrl"
-                class="w-16 h-16 rounded-full border-2 border-green-400 shadow-lg object-cover"
-                alt="Avatar"
-              />
-              <div
-                v-else
-                class="w-16 h-16 rounded-full bg-gradient-to-br from-green-700 to-green-400 flex justify-center items-center text-2xl font-extrabold text-white shadow-lg border-2 border-green-400 select-none"
-              >
-                U
-              </div>
+          <div class="flex flex-col items-center mb-8 relative group animate__animated animate__fadeInLeft">
+            <div class="relative">
+              <transition name="scale">
+                <img
+                  v-if="avatarUrl"
+                  :src="avatarUrl"
+                  class="w-16 h-16 rounded-full border-2 border-green-400 shadow-lg object-cover animate__animated animate__zoomIn"
+                  alt="Avatar"
+                  key="imgavatar"
+                />
+                <div
+                  v-else
+                  class="w-16 h-16 rounded-full bg-gradient-to-br from-green-700 to-green-400 flex justify-center items-center text-2xl font-extrabold text-white shadow-lg border-2 border-green-400 select-none animate__animated animate__rotateIn"
+                  key="defaultavatar"
+                >
+                  {{displayName?.charAt(0) || "U"}}
+                </div>
+              </transition>
               <button
                 class="absolute -bottom-3 left-1/4 -translate-x-1/2 w-7 h-7 bg-green-500 hover:bg-green-700 text-white rounded-full flex items-center justify-center border-2 border-white shadow-md transition"
                 @click.prevent="triggerFileInput"
@@ -45,7 +51,6 @@
                 class="hidden"
               />
             </div>
-            <!-- Nombre dinámico -->
             <div class="text-lg font-semibold mb-2 transition-opacity duration-300 text-green-400 mt-3"
                  :class="sidebarOpen ? 'opacity-100' : 'opacity-0'">
               Hola {{ displayName ? displayName : "Usuario" }}
@@ -56,12 +61,14 @@
                 v-model="connection"
                 class="bg-[#181f18] border-none rounded px-2 py-1 text-green-300 font-semibold text-sm cursor-pointer transition-opacity duration-300"
                 :class="sidebarOpen ? 'opacity-100' : 'opacity-0'"
+                @change="saveUserConnection"
               >
                 <option value="conectado">Conectado</option>
                 <option value="ausente">Ausente</option>
                 <option value="desconectado">Desconectado</option>
               </select>
             </div>
+            <div v-if="avatarFeedback" class="text-green-400 text-xs mt-2">{{ avatarFeedback }}</div>
           </div>
           <ul class="flex flex-col list-none p-0 m-0 space-y-2">
             <li v-for="(item, i) in menuItems" :key="item.path">
@@ -76,11 +83,10 @@
             </li>
           </ul>
         </div>
-
         <button
           @click="handleLogout"
           class="w-full flex items-center gap-2 justify-center py-3 px-5 bg-black text-green-400 rounded-xl font-bold
-                 transition-all hover:bg-green-800 hover:text-white shadow-lg"
+                  transition-all hover:bg-green-800 hover:text-white shadow-lg"
           :class="sidebarOpen ? 'text-base' : 'text-xl'"
         >
           <span class="bi bi-box-arrow-right"></span>
@@ -88,7 +94,8 @@
         </button>
       </div>
     </aside>
-    <main class="flex-1 p-6 overflow-auto text-gray-100 font-sans min-h-screen ml-16 md:ml-64 flex items-center justify-center">
+    <!-- Main -->
+    <main class="flex-1 p-6 overflow-auto text-gray-100 font-sans min-h-screen ml-16 md:ml-72 flex items-center justify-center animate__animated animate__fadeIn">
       <router-view />
     </main>
   </div>
@@ -99,8 +106,8 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { db } from "../firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-// Si usas auth de Firebase Web modular:
-import { getAuth } from "firebase/auth";
+import { getAuth, signOut } from "firebase/auth";
+import 'animate.css';
 
 const router = useRouter();
 const connection = ref("conectado");
@@ -108,7 +115,8 @@ const sidebarOpen = ref(true);
 const avatarUrl = ref(null);
 const fileInput = ref(null);
 const displayName = ref(null);
-const usuarioId = ref(null);  // ahora será dinámica, NO string
+const usuarioId = ref(null);
+const avatarFeedback = ref('');
 
 const menuItems = [
   { icon: "bi bi-journal-text", label: "Asignaturas", path: "/dashboard/asignaturas" },
@@ -118,27 +126,28 @@ const menuItems = [
   { icon: "bi bi-chat-dots", label: "Chat Interno", path: "/dashboard/chatinterno" },
 ];
 
-function getConnectionColor() {
+const getConnectionColor = () => {
   switch (connection.value) {
     case "conectado": return "#31c56e";
     case "ausente": return "#f2cb57";
     case "desconectado": return "#e34234";
     default: return "#ccc";
   }
-}
+};
 
-function toggleSidebar() {
+const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value;
-}
+};
 
-function triggerFileInput() {
+const triggerFileInput = () => {
   fileInput.value?.click();
-}
+};
 
-async function onFileChange(event) {
+const onFileChange = async (event) => {
   const file = event.target.files[0];
   if (!file) return;
 
+  avatarFeedback.value = "";
   const reader = new FileReader();
   reader.readAsDataURL(file);
   reader.onload = async () => {
@@ -147,67 +156,93 @@ async function onFileChange(event) {
     const formData = new FormData();
     formData.append("image", base64Image);
 
-    const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
-      method: "POST",
-      body: formData,
-    });
-    const data = await res.json();
-    if (data.success) {
-      const url = data.data.url;
-      avatarUrl.value = url;
-      // Guardar imagen y nombre en Firestore (merge para no pisar nada)
-      const userDoc = doc(db, "usuarios", usuarioId.value);
-      await setDoc(userDoc, { avatarUrl: url }, { merge: true });
-    } else {
-      alert("Error subiendo imagen a ImgBB");
+    try {
+      const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success) {
+        const url = data.data.url;
+        avatarUrl.value = url;
+        avatarFeedback.value = "¡Avatar actualizado!";
+        // Guarda en Firestore
+        const userDoc = doc(db, "usuarios", usuarioId.value);
+        await setDoc(userDoc, { avatarUrl: url }, { merge: true });
+        setTimeout(() => avatarFeedback.value = '', 1800);
+      } else {
+        avatarFeedback.value = "Error subiendo imagen a ImgBB";
+      }
+    } catch {
+      avatarFeedback.value = "Error de conexión al actualizar el avatar";
     }
   };
-}
+};
 
-// Carga datos usuario y avatar en mount
+const saveUserConnection = async () => {
+  if (!usuarioId.value) return;
+  const userDoc = doc(db, "usuarios", usuarioId.value);
+  await setDoc(userDoc, { estado: connection.value }, { merge: true });
+};
+
 onMounted(async () => {
-  // Autenticación
   const auth = getAuth();
   const user = auth.currentUser;
   if (!user) {
-    // Redirige a login si hace falta:
     router.push("/login");
     return;
   }
   usuarioId.value = user.uid;
-  let nombreCalculado = null;
-  if (user.email) {
-    nombreCalculado = user.email.split("@")[0];
-  }
-  // Lee Firestore por si ya hay nombre guardado:
+  let nombreCalculado = user.email ? user.email.split("@")[0] : null;
+  // obtener Firestore
   const userDoc = doc(db, "usuarios", usuarioId.value);
   const docSnap = await getDoc(userDoc);
 
   if (docSnap.exists()) {
     avatarUrl.value = docSnap.data().avatarUrl || null;
-    // Si ya hay nombre guardado, úsalo; si no, pon el deducido
     displayName.value = docSnap.data().nombre || nombreCalculado;
-    // Si aún no hay campo 'nombre', guárdalo junto al correo
+    connection.value = docSnap.data().estado || "conectado";
     if (!docSnap.data().nombre) {
       await setDoc(userDoc, {
         nombre: nombreCalculado,
-        email: user.email
+        email: user.email,
       }, { merge: true });
     }
   } else {
-    // Si no existe, crea documento con nombre y email
     await setDoc(userDoc, {
       email: user.email,
       nombre: nombreCalculado,
-      avatarUrl: null
+      avatarUrl: null,
+      estado: "conectado"
     });
     displayName.value = nombreCalculado;
     avatarUrl.value = null;
+    connection.value = "conectado";
   }
 });
 
-function handleLogout() {
-  localStorage.removeItem("token");
-  router.push("/");
-}
+const handleLogout = async () => {
+  try {
+    const auth = getAuth();
+    await signOut(auth);
+    // Limpia tokens locales si los usas
+    localStorage.removeItem("token");
+    // Redirecciona correctamente
+    router.push("/login");
+  } catch (e) {
+    alert("Error cerrando sesión: " + (e.message || e));
+  }
+};
 </script>
+
+<style scoped>
+.scale-enter-active,
+.scale-leave-active {
+  transition: transform 0.3s;
+}
+.scale-enter-from,
+.scale-leave-to {
+  transform: scale(0.6);
+  opacity: 0.3;
+}
+</style>
