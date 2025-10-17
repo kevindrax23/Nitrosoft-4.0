@@ -1,10 +1,12 @@
 <template>
-  <div class="min-h-screen px-4 py-10 bg-gradient-to-br from-black via-[#141914] to-green-950 text-green-100 font-sans flex flex-col items-center">
+  <div class="min-h-screen px-4 py-10 bg-gradient-to-br from-black via-[#171717] to-[#232323] text-green-200 font-sans flex flex-col items-center">
     <div class="w-full max-w-3xl mx-auto relative">
       <!-- Barra sticky -->
-      <div class="sticky top-0 left-0 z-20 w-full">
-        <div class="flex justify-between items-center gap-5 p-4 rounded-2xl border border-green-700 shadow-xl backdrop-blur-lg"
-            :class="[minutos <= 5 ? 'bg-gradient-to-br from-yellow-900/80 via-green-900/90 to-green-950/80 animate__animated animate__flash animate__slower' : 'bg-[#101910cc]']">
+      <div
+        class="sticky top-0 left-0 z-20 w-full p-4 rounded-2xl border border-green-700 shadow-xl backdrop-blur-lg"
+        :class="[minutos <= 5 ? 'bg-yellow-900/80 via-green-900/90 to-green-950/80 animate__animated animate__flash animate__slower' : 'bg-[#101910cc]']"
+      >
+        <div class="flex justify-between items-center gap-5">
           <div class="text-lg font-semibold select-none">
             Tiempo restante:
             <span :class="minutos<=5 ? 'text-yellow-300 font-bold' : 'text-green-400 font-bold'" class="bg-[#141914cc] px-3 py-1 rounded">

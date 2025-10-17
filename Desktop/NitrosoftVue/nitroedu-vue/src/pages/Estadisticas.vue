@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-black via-[#161d14] to-green-950 px-4 py-10 flex flex-col items-center">
-    <div class="max-w-3xl w-full mx-auto mb-8 bg-black/70 border border-green-700 rounded-2xl shadow-lg px-7 py-6">
+  <div class="min-h-screen bg-gradient-to-br from-black via-[#171717] to-[#232323] px-4 py-10 flex flex-col items-center">
+    <div class="max-w-3xl w-full mx-auto mb-8 bg-[#181a1a] border border-green-700 rounded-2xl shadow-lg px-7 py-6">
       <h2 class="text-green-400 text-2xl font-extrabold mb-4 animate__animated animate__fadeInDown">Estadísticas personales</h2>
       <div class="flex flex-col sm:flex-row gap-6 text-green-200 justify-between">
         <div><span class="font-bold">Última conexión:</span> {{ ultimaConexionFormat }}</div>
@@ -17,17 +17,17 @@
           <span v-else-if="promedioGlobal > 0" class="ml-2 text-red-400">¡Vamos, tú puedes subir más!</span>
         </div>
         <button
-          class="px-3 py-1 text-green-400 border border-green-500 bg-green-950/70 rounded hover:bg-green-700 transition ml-6"
+          class="px-3 py-1 text-green-400 border border-green-500 bg-green-900/70 rounded hover:bg-green-700 transition ml-6"
           @click="exportarExcel">Exportar a Excel</button>
       </div>
     </div>
 
     <!-- Últimos resultados individualizados -->
-    <div class="max-w-4xl w-full mx-auto bg-black/70 border border-green-700 rounded-2xl shadow-lg px-7 py-6 mb-8">
+    <div class="max-w-4xl w-full mx-auto bg-[#181a1a] border border-green-700 rounded-2xl shadow-lg px-7 py-6 mb-8">
       <h3 class="text-green-400 text-xl font-bold mb-6">Resultados del último examen por materia</h3>
       <div v-if="resultados.length" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         <div v-for="r in resultados" :key="r.id"
-          class="bg-gradient-to-br from-[#1b3822e6] to-[#183c1bc4] border border-green-700 rounded-xl shadow p-5 relative transition hover:ring-2 hover:ring-green-500 animate__animated animate__fadeInUp">
+          class="bg-gradient-to-br from-[#1c2421] to-[#181e1d] border border-green-700 rounded-xl shadow p-5 relative transition hover:ring-2 hover:ring-green-500 animate__animated animate__fadeInUp">
           <div class="absolute top-2 right-3 text-xs px-2 py-1 rounded-lg"
               :class="r.puntaje >= 80 ? 'bg-green-900 text-green-300' : r.puntaje >= 60 ? 'bg-yellow-900 text-yellow-300' : 'bg-red-900 text-red-300'">
             {{ r.puntaje >= 80 ? '¡Record!' : r.puntaje >= 60 ? 'Constante' : '¡Hazlo de nuevo!' }}
@@ -45,15 +45,11 @@
     <!-- Barra horizontal animada promedios por materia -->
     <div class="max-w-2xl w-full mx-auto mb-8">
       <h3 class="text-green-400 text-lg font-bold mb-4">Tus promedios por materia</h3>
-      <div
-        v-for="p in resumenMaterias"
-        :key="p.materia"
-        class="mb-4 flex items-center gap-4"
-      >
+      <div v-for="p in resumenMaterias" :key="p.materia" class="mb-4 flex items-center gap-4">
         <div class="w-32 font-bold text-green-300">{{ p.materia }}</div>
         <div class="flex-1 h-7 bg-green-900 rounded overflow-hidden">
           <div
-            class="h-7 rounded bg-gradient-to-r from-green-400 to-green-700 text-green-950 pl-2 flex items-center transition-all duration-700"
+            class="h-7 rounded bg-gradient-to-r from-green-400 to-green-700 text-green-950 pl-2 flex items-center"
             :style="{ width: (p.promedio >= 100 ? 100 : p.promedio) + '%' }"
           >
             {{ p.promedio }}
@@ -67,12 +63,14 @@
     <div class="max-w-2xl w-full mx-auto mb-8">
       <h3 class="text-green-400 text-lg font-bold mb-4">¿Cómo vas en el ranking?</h3>
       <div class="flex gap-5 items-center">
-        <div class="bg-green-900/80 text-green-200 font-bold px-4 py-2 rounded-xl ring-2 ring-green-500">Tu puntaje está por encima del 65% de los usuarios ⭐</div>
+        <div class="bg-green-900/80 text-green-200 font-bold px-4 py-2 rounded-xl ring-2 ring-green-500">
+          Tu puntaje está por encima del 65% de los usuarios ⭐
+        </div>
         <button class="bg-green-600 rounded px-3 py-1 text-white hover:bg-green-700 shadow text-sm">Ver ranking global (próximamente)</button>
       </div>
     </div>
 
-    <!-- Tabla avanzada de tendencias y máximos/mínimos -->
+    <!-- Tabla avanzada de tendencias, máximos, mínimos -->
     <div class="max-w-3xl w-full mx-auto mb-8">
       <h3 class="text-green-400 text-lg font-bold mb-4">Resumen y progreso</h3>
       <table class="w-full table-auto bg-black/80 rounded-xl text-green-100 shadow mb-6 text-center">
@@ -113,12 +111,9 @@
 import { ref, computed, onMounted } from 'vue';
 import { db } from '../firebase';
 import { collection, query, where, orderBy, limit, getDocs, doc, getDoc } from 'firebase/firestore';
-
-// Importa animate.css para animaciones (añade en tu main.js o index.html)
 import 'animate.css';
 
 const usuarioId = "usuario_demo_1";
-
 const ultimaConexion = ref('');
 const tiempoTotalConexion = ref(0);
 const resultados = ref([]);
@@ -227,6 +222,7 @@ onMounted(async () => {
   promediosEnTarjetas.value = promsTarjetas;
   promedioGlobal.value = allScores.length ? (allScores.reduce((a, b) => a + b, 0) / allScores.length).toFixed(1) : 0;
 });
+
 
 function exportarExcel() {
   alert("Función de exportar aún no activada (requiere plugin externo, como SheetJS).");

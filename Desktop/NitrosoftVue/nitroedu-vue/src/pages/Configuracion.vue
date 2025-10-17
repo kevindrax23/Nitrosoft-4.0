@@ -1,28 +1,28 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-black via-[#141914] to-green-950 px-2 py-10 flex justify-center items-start">
+  <div class="min-h-screen bg-gradient-to-br from-black via-[#171819] to-[#232323] px-2 py-10 flex justify-center items-start">
     <div class="max-w-7xl w-full">
       <h1 class="text-center text-4xl font-extrabold text-green-400 mb-6">Configuración de Usuario</h1>
       <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
 
         <!-- TEMA -->
-        <section class="bg-[#161e16] p-7 rounded-2xl border border-green-700 shadow flex flex-col min-h-[220px] gap-5">
+        <section class="bg-[#181a1a] p-7 rounded-2xl border border-green-700 shadow flex flex-col min-h-[210px] gap-5">
           <h2 class="text-2xl font-bold text-green-300 mb-2">Tema</h2>
           <label class="cursor-pointer flex items-center gap-3">
             <input type="checkbox" class="accent-green-400 h-6 w-6" v-model="oscuro" />
             <span class="text-lg">{{ oscuro ? 'Oscuro' : 'Claro' }}</span>
           </label>
-          <div class="mt-2 text-green-400 text-xs">Visualiza tu app como prefieras</div>
+          <div class="mt-2 text-green-400 text-xs">Visualiza la app a tu gusto</div>
         </section>
 
         <!-- IDIOMA -->
-        <section class="bg-[#161e16] p-7 rounded-2xl border border-green-700 shadow flex flex-col min-h-[220px] gap-5">
+        <section class="bg-[#181a1a] p-7 rounded-2xl border border-green-700 shadow flex flex-col min-h-[210px] gap-5">
           <h2 class="text-2xl font-bold text-green-300 mb-2">Idioma</h2>
           <div class="flex flex-wrap gap-2">
             <button
               v-for="item in idiomasDisponibles"
               :key="item.code"
               @click="setIdioma(item.code)"
-              :class="['rounded-lg px-2 py-1 border text-left transition', idioma === item.code ? 'border-green-400 bg-green-900 scale-105' : 'border-green-600 hover:bg-green-700/60']"
+              :class="['rounded-lg px-2 py-1 border transition', idioma === item.code ? 'border-green-400 bg-[#192d19] scale-105' : 'border-green-700 hover:bg-green-800/60']"
             >
               <span class="mr-1">{{ item.flag }}</span>
               <span class="font-semibold">{{ item.name }}</span>
@@ -35,7 +35,7 @@
         </section>
 
         <!-- NOTIFICACIONES -->
-        <section class="bg-[#161e16] p-7 rounded-2xl border border-green-700 shadow flex flex-col min-h-[220px] gap-5">
+        <section class="bg-[#181a1a] p-7 rounded-2xl border border-green-700 shadow flex flex-col min-h-[210px] gap-5">
           <h2 class="text-2xl font-bold text-green-300 mb-2">Notificaciones</h2>
           <label class="flex items-center gap-3 cursor-pointer">
             <input type="checkbox" class="accent-green-400 h-6 w-6" v-model="notificaciones" />
@@ -45,7 +45,7 @@
         </section>
 
         <!-- ACCESIBILIDAD -->
-        <section class="bg-[#161e16] p-7 rounded-2xl border border-green-700 shadow flex flex-col min-h-[220px] gap-5">
+        <section class="bg-[#181a1a] p-7 rounded-2xl border border-green-700 shadow flex flex-col min-h-[210px] gap-5">
           <h2 class="text-2xl font-bold text-green-300 mb-2">Accesibilidad</h2>
           <label class="block mb-2 text-green-300 font-semibold">Tamaño de fuente</label>
           <input
@@ -60,13 +60,13 @@
         </section>
 
         <!-- CUENTA -->
-        <section class="bg-[#161e16] p-7 rounded-2xl border border-green-700 shadow flex flex-col min-h-[220px] gap-5">
+        <section class="bg-[#181a1a] p-7 rounded-2xl border border-green-700 shadow flex flex-col min-h-[210px] gap-5">
           <h2 class="text-2xl font-bold text-green-300 mb-2">Cuenta</h2>
           <div class="mb-1 text-green-200 text-sm font-semibold">Email:</div>
           <input
             type="email"
             v-model="email"
-            class="w-full py-2 px-3 rounded-lg bg-[#101910] border border-green-600 text-green-300 mb-2"
+            class="w-full py-2 px-3 rounded-lg bg-[#191d1c] border border-green-700 text-green-300 mb-2"
             placeholder="usuario@ejemplo.com"
             @blur="persistAccount"
           />
@@ -74,11 +74,11 @@
             <button @click="guardarEmail" class="w-1/2 py-2 bg-green-700 hover:bg-green-800 rounded-lg font-bold text-white">Actualizar Email</button>
             <button @click="showChangePass = true" class="w-1/2 py-2 bg-yellow-600 hover:bg-yellow-700 rounded-lg font-bold text-white">Cambiar Clave</button>
           </div>
-          <transition name="fade"><div v-if="emailSaved" class="mt-1 text-green-500 text-xs text-center">¡Email actualizado!</div></transition>
+          <transition name="fade"><div v-if="emailSaved" class="mt-1 text-green-400 text-xs text-center">¡Email actualizado!</div></transition>
         </section>
 
         <!-- PRIVACIDAD/DATOS -->
-        <section class="bg-[#161e16] p-7 rounded-2xl border border-green-700 shadow flex flex-col min-h-[220px] gap-5">
+        <section class="bg-[#181a1a] p-7 rounded-2xl border border-green-700 shadow flex flex-col min-h-[210px] gap-5">
           <h2 class="text-2xl font-bold text-green-300 mb-2">Privacidad y Datos</h2>
           <label class="flex items-center gap-3 cursor-pointer">
             <input type="checkbox" class="accent-green-400 h-6 w-6" v-model="analytics" />
@@ -87,14 +87,14 @@
           <button class="my-3 w-full py-2 bg-red-700 hover:bg-red-800 rounded-lg font-bold text-white transition" @click="borrarLocal">
             Borrar datos locales
           </button>
-          <button class="w-full py-2 bg-gradient-to-r from-green-700 to-green-500 hover:from-green-800 hover:to-green-600 rounded-lg font-bold text-white transition" @click="resetAll">
+          <button class="w-full py-2 bg-green-700 hover:bg-green-800 rounded-lg font-bold text-white transition" @click="resetAll">
             Resetear configuración
           </button>
-          <div v-if="resetFeedback" class="mt-1 text-green-300 text-xs">{{ resetFeedback }}</div>
+          <div v-if="resetFeedback" class="mt-1 text-green-400 text-xs">{{ resetFeedback }}</div>
         </section>
 
         <!-- SESIÓN -->
-        <section class="bg-[#161e16] p-7 rounded-2xl border border-green-700 shadow flex flex-col gap-5 min-h-[220px] justify-end">
+        <section class="bg-[#181a1a] p-7 rounded-2xl border border-green-700 shadow flex flex-col gap-5 min-h-[210px] justify-end">
           <h2 class="text-2xl font-bold text-green-300 mb-2">Sesión</h2>
           <button
             @click="showConfirmLogout = true"
@@ -109,13 +109,13 @@
       <div v-if="showChangePass" class="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50">
         <div class="bg-black rounded-2xl p-8 max-w-md w-full space-y-4 border border-green-700 shadow-lg">
           <h3 class="text-green-400 text-2xl font-bold text-center">Cambiar Contraseña</h3>
-          <input type="password" v-model="nuevaClave" placeholder="Nueva contraseña" class="w-full p-3 rounded-lg bg-[#101910] border border-green-600 text-green-300 font-semibold"/>
-          <input type="password" v-model="confirmarClave" placeholder="Confirmar contraseña" class="w-full p-3 rounded-lg bg-[#101910] border border-green-600 text-green-300 font-semibold"/>
+          <input type="password" v-model="nuevaClave" placeholder="Nueva contraseña" class="w-full p-3 rounded-lg bg-[#191d1c] border border-green-700 text-green-300 font-semibold"/>
+          <input type="password" v-model="confirmarClave" placeholder="Confirmar contraseña" class="w-full p-3 rounded-lg bg-[#191d1c] border border-green-700 text-green-300 font-semibold"/>
           <div class="flex justify-between mt-2">
-            <button @click="cambiarClave" class="py-2 px-4 bg-green-600 rounded-lg font-bold text-white hover:bg-green-700 transition">
+            <button @click="cambiarClave" class="py-2 px-4 bg-green-700 rounded-lg font-bold text-white hover:bg-green-800 transition">
               Cambiar
             </button>
-            <button @click="showChangePass = false" class="py-2 px-4 bg-red-600 rounded-lg font-bold text-white hover:bg-red-700 transition">
+            <button @click="showChangePass = false" class="py-2 px-4 bg-red-700 rounded-lg font-bold text-white hover:bg-red-800 transition">
               Cancelar
             </button>
           </div>
@@ -129,7 +129,7 @@
           <h3 class="text-green-400 text-xl font-bold mb-4">¿Cerrar sesión?</h3>
           <div class="flex justify-between">
             <button @click="cerrarSesion" class="py-2 px-6 bg-red-700 rounded-lg font-bold text-white hover:bg-red-800 transition">Sí, cerrar</button>
-            <button @click="showConfirmLogout = false" class="py-2 px-6 bg-green-600 rounded-lg font-bold text-white hover:bg-green-700 transition">Cancelar</button>
+            <button @click="showConfirmLogout = false" class="py-2 px-6 bg-green-700 rounded-lg font-bold text-white hover:bg-green-800 transition">Cancelar</button>
           </div>
         </div>
       </div>
@@ -177,12 +177,12 @@ if (oscuro.value) document.documentElement.classList.add('dark');
 else document.documentElement.classList.remove('dark');
 
 // Idioma
-const setIdioma = (c) => {
+const setIdioma = c => {
   idioma.value = c;
   localStorage.setItem('idioma', c);
   idiomaFeedback.value = `Idioma cambiado a ${idiomasDisponibles.find(i => i.code === c).name}`;
   idiomaChanged.value = true;
-  setTimeout(() => idiomaChanged.value = false, 2200);
+  setTimeout(() => idiomaChanged.value = false, 1800);
 };
 
 // Notificaciones, analytics y fuente
@@ -198,7 +198,7 @@ document.documentElement.style.fontSize = `${tamanoFuente.value}px`;
 const guardarEmail = () => {
   localStorage.setItem('email', email.value);
   emailSaved.value = true;
-  setTimeout(() => (emailSaved.value = false), 1600);
+  setTimeout(() => (emailSaved.value = false), 1400);
 };
 const persistAccount = () => {
   localStorage.setItem('email', email.value);
@@ -219,7 +219,7 @@ const cambiarClave = async () => {
     }
     await updatePassword(user, nuevaClave.value);
     passSuccess.value = 'Contraseña cambiada correctamente';
-    setTimeout(() => { showChangePass.value = false; nuevaClave.value=''; confirmarClave.value=''; passSuccess.value=''; }, 1800);
+    setTimeout(() => { showChangePass.value = false; nuevaClave.value=''; confirmarClave.value=''; passSuccess.value=''; }, 1300);
   } catch (e) {
     passError.value = e.message || 'Error al cambiar clave';
   }
@@ -229,7 +229,7 @@ const cambiarClave = async () => {
 const borrarLocal = () => {
   localStorage.clear();
   resetFeedback.value = '¡Datos locales borrados!';
-  setTimeout(() => (resetFeedback.value = ''), 2000);
+  setTimeout(() => (resetFeedback.value = ''), 1700);
 };
 const resetAll = () => {
   oscuro.value = true;
@@ -240,18 +240,18 @@ const resetAll = () => {
   email.value = 'usuario@ejemplo.com';
   localStorage.clear();
   resetFeedback.value = '¡Configuraciones restauradas!';
-  setTimeout(() => (resetFeedback.value = ''), 1700);
+  setTimeout(() => (resetFeedback.value = ''), 1400);
 };
 
 // Sesión (simulado)
 const cerrarSesion = () => {
   showConfirmLogout.value = false;
   resetFeedback.value = 'Sesión cerrada (implementa logout real)';
-  setTimeout(() => (resetFeedback.value = ''), 2200);
+  setTimeout(() => (resetFeedback.value = ''), 2000);
 };
 </script>
 
 <style scoped>
-.fade-enter-active, .fade-leave-active { transition: opacity 0.225s; }
+.fade-enter-active, .fade-leave-active { transition: opacity 0.18s; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>
