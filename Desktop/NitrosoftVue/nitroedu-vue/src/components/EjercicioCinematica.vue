@@ -119,7 +119,7 @@ const respuestaEstudiante = ref('');
 const feedback = ref('');
 const feedbackCorrecto = ref(false);
 
-function mover(timestamp) {
+const mover = (timestamp) => {
   if (!running.value) return;
   if (!lastTimestamp) lastTimestamp = timestamp;
 
@@ -139,7 +139,7 @@ function mover(timestamp) {
 }
 
 // Dibuja la trayectoria en canvas
-function drawTrayectoria() {
+const drawTrayectoria = () => {
   const canvas = trayectoriaCanvas.value;
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
@@ -152,7 +152,7 @@ function drawTrayectoria() {
   ctx.stroke();
 }
 
-function iniciar() {
+const iniciar = () =>  {
   if (!running.value) {
     running.value = true;
     lastTimestamp = null;
@@ -166,12 +166,12 @@ function iniciar() {
   }
 }
 
-function detener() {
+const detener = () => {
   running.value = false;
   if (animationFrame) cancelAnimationFrame(animationFrame);
 }
 
-function reset() {
+const reset = () => {
   detener();
   posX.value = 0;
   tiempo.value = 0;
@@ -183,7 +183,7 @@ function reset() {
 }
 
 // Pregunta automática al finalizar
-function verificarRespuesta() {
+const verificarRespuesta = () => {
   const esperado = (velocidadNumMs.value * tiempoPregunta.value).toFixed(2);
   if (Math.abs(Number(respuestaEstudiante.value) - esperado) < 0.05) {
     feedback.value = "¡Correcto! La posición final es " + esperado + " m.";

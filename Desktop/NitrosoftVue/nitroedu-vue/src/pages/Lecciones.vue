@@ -80,7 +80,7 @@
 
       <!-- FINAL MOTIVADOR -->
       <div class="w-full mt-4 pt-4 text-center font-extrabold text-lg text-green-300 tracking-wide border-t border-green-900 rounded-b-xl animate__animated animate__pulse animate__infinite">
-        ¡Sigue aprendiendo todos los días! 🚀📘
+        ¡Sigue aprendiendo todos los días! 
       </div>
     </div>
     <div v-else class="text-green-400 text-center mt-20">Cargando lección o no encontrada...</div>

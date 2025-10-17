@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
 
 // Páginas
 import Login from '../pages/Login.vue'
@@ -11,15 +12,17 @@ import Configuracion from '../pages/Configuracion.vue'
 import ChatInterno from '../pages/ChatInterno.vue'
 import CrearPreguntas from '../utils/seed.vue'
 import Matematicas2 from '../utils/matematicas2.vue'
-import Lecciones from '../pages/Lecciones.vue' 
+import Lecciones from '../pages/Lecciones.vue'
 import CrearLeccion from '../utils/crearLeccion.vue'
-// Auth helper
+
+// Helper para autenticación
 function isAuthenticated() {
-  return !!localStorage.getItem('token')
+  const auth = getAuth()
+  return auth.currentUser !== null
 }
 
 const routes = [
-  { path: '/', redirect: '/login' }, // Redirección raíz a login
+  { path: '/', redirect: '/login' },
   { path: '/login', component: Login, meta: { public: true } },
 
   {
@@ -36,19 +39,10 @@ const routes = [
     ]
   },
   { path: '/examen/:materiaId', component: Examen, meta: { requiresAuth: true } },
-  { path: '/crear-preguntas', component: CrearPreguntas },
-  { path: '/matematicas2', component: Matematicas2 },
-  {
-  path: '/lecciones/:id',
-  name: 'Lecciones',
-  component: Lecciones
-},
-
-{
-    path: "/crear-leccion",
-    name: "CrearLeccion",
-    component: CrearLeccion,
-  },
+  { path: '/crear-preguntas', component: CrearPreguntas, meta: { requiresAuth: true } },
+  { path: '/matematicas2', component: Matematicas2, meta: { requiresAuth: true } },
+  { path: '/lecciones/:id', name: 'Lecciones', component: Lecciones, meta: { requiresAuth: true } },
+  { path: '/crear-leccion', name: 'CrearLeccion', component: CrearLeccion, meta: { requiresAuth: true } },
 ]
 
 const router = createRouter({
@@ -56,15 +50,34 @@ const router = createRouter({
   routes,
 })
 
-// Protección de rutas
+// Protección inteligente de rutas
+let authChecked = false
+
 router.beforeEach((to, from, next) => {
-  if (to.meta.requiresAuth && !isAuthenticated()) {
-    next({ path: '/login' })       // Asegura que /login existe y es pública
-  } else if (to.meta.public && isAuthenticated()) {
+  const auth = getAuth()
+
+  if (!authChecked) {
+    onAuthStateChanged(auth, (user) => {
+      authChecked = true
+      handleAuthRedirect(to, next, user)
+    })
+  } else {
+    handleAuthRedirect(to, next, auth.currentUser)
+  }
+})
+
+// Manejo de redirecciones según estado
+function handleAuthRedirect(to, next, user) {
+  const requiresAuth = to.meta.requiresAuth
+  const isPublic = to.meta.public
+
+  if (requiresAuth && !user) {
+    next('/login')
+  } else if (isPublic && user) {
     next('/dashboard')
   } else {
     next()
   }
-})
+}
 
 export default router
